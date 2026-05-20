@@ -1,0 +1,4 @@
+column 1 = Interés Principal
+column 2 = Nivel de Ejercicio Actual
+column 3 = Qué tan Motivado
+column 4 = ¿Cómodo con Dispositivos Tecnológicos?
