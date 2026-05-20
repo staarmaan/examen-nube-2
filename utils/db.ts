@@ -5,13 +5,17 @@ const globalForDb = globalThis as unknown as {
 };
 
 function createPool(): mysql.Pool {
-  const url = new URL(process.env.DATABASE_URL!);
+  const rawUrl = process.env.DATABASE_URL!;
+  const match = rawUrl.match(/mysql:\/\/([^:]+):(.+)@([^:]+):(\d+)\/(.+)/);
+  if (!match) {
+    throw new Error("No se pudo parsear DATABASE_URL");
+  }
   return mysql.createPool({
-    host: url.hostname,
-    port: Number(url.port) || 3306,
-    user: url.username,
-    password: decodeURIComponent(url.password),
-    database: url.pathname.replace("/", ""),
+    host: match[3],
+    port: Number(match[4]),
+    user: match[1],
+    password: match[2],
+    database: match[5],
     waitForConnections: true,
     connectionLimit: 10,
     ssl: { rejectUnauthorized: false },
