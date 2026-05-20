@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/utils/prisma";
+import { pool } from "@/utils/db";
 
 export async function PATCH(
   request: NextRequest,
@@ -17,12 +17,16 @@ export async function PATCH(
       );
     }
 
-    const registro = await prisma.prediction.update({
-      where: { id: Number(id) },
-      data: { userSuggestion },
-    });
-
-    return Response.json({ success: true, id: registro.id });
+    const conn = await pool.getConnection();
+    try {
+      await conn.execute(
+        "UPDATE Prediction SET userSuggestion = ? WHERE id = ?",
+        [userSuggestion, Number(id)],
+      );
+      return Response.json({ success: true, id: Number(id) });
+    } finally {
+      conn.release();
+    }
   } catch (error) {
     return Response.json(
       { error: "Error al guardar la sugerencia", details: String(error) },
